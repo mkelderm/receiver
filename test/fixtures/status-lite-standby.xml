@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<item>
+<Power><value>STANDBY</value></Power>
+<InputFuncSelect><value>TV AUDIO</value></InputFuncSelect>
+<VolumeDisplay><value>Absolute</value></VolumeDisplay>
+<MasterVolume><value>--</value></MasterVolume>
+<Mute><value>on</value></Mute>
+</item>

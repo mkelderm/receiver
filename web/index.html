@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Receiver</title>
+<meta name="description" content="Afstandsbediening voor een Denon-receiver op je thuisnetwerk.">
+<link rel="stylesheet" href="./app.css">
+<link rel="icon" href="./icon-192.png" sizes="192x192" type="image/png">
+<meta name="theme-color" content="#13242b" media="(prefers-color-scheme: dark)">
+<meta name="theme-color" content="#e2e5e7" media="(prefers-color-scheme: light)">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="bar">
+    <div class="bar-text">
+      <h1 class="bar-name" id="name">Receiver</h1>
+      <p class="bar-state" id="state">Verbinden…</p>
+    </div>
+    <button class="icon-btn" id="settings-btn" type="button" aria-label="Instellingen">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15.5a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z"/><path d="M19.4 13a7.6 7.6 0 0 0 0-2l2-1.6-2-3.4-2.4 1a7.4 7.4 0 0 0-1.7-1L15 3.5h-4l-.4 2.5a7.4 7.4 0 0 0-1.7 1l-2.4-1-2 3.4 2 1.6a7.6 7.6 0 0 0 0 2l-2 1.6 2 3.4 2.4-1a7.4 7.4 0 0 0 1.7 1l.4 2.5h4l.4-2.5a7.4 7.4 0 0 0 1.7-1l2.4 1 2-3.4-2-1.6Z"/></svg>
+    </button>
+    <button class="power" id="power" type="button" aria-pressed="false" aria-label="Aan/uit">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v8"/><path d="M6.3 6.8a8 8 0 1 0 11.4 0"/></svg>
+    </button>
+  </header>
+
+  <main class="tabs-body">
+
+    <!-- ─── Bediening ─────────────────────────────────────────────────────── -->
+    <section class="tab" id="tab-control" role="tabpanel" aria-labelledby="tabbtn-control">
+
+      <div class="dial" id="dial" role="slider" tabindex="0" aria-label="Volume"
+           aria-valuemin="0" aria-valuemax="70" aria-valuenow="0">
+        <svg class="dial-ring" viewBox="0 0 240 240" aria-hidden="true">
+          <g id="ticks"></g>
+          <path class="dial-track" id="track"/>
+          <path class="dial-level" id="level"/>
+          <circle class="dial-handle" id="handle" r="9"/>
+        </svg>
+        <div class="window" aria-hidden="true">
+          <p class="window-line" id="source-line"></p>
+          <div class="digits" id="digits"></div>
+          <p class="window-line window-sub" id="db-line"></p>
+        </div>
+      </div>
+
+      <div class="vol-buttons">
+        <button class="round" id="vol-down" type="button" aria-label="Zachter">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14"/></svg>
+        </button>
+        <button class="round round-mute" id="mute" type="button" aria-pressed="false" aria-label="Geluid uit">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5m0-5-5 5"/></svg>
+        </button>
+        <button class="round" id="vol-up" type="button" aria-label="Harder">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M12 5v14"/></svg>
+        </button>
+      </div>
+
+      <div class="notice" id="notice" hidden>
+        <p class="notice-text" id="notice-text"></p>
+        <p class="notice-hint" id="notice-hint"></p>
+        <button class="btn" id="notice-btn" type="button"></button>
+      </div>
+
+      <div class="sources" id="sources" role="group" aria-label="Ingang"></div>
+
+      <button class="fav-open" id="fav-open" type="button" aria-pressed="false" hidden>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 3.8 2.5 5.1 5.6.8-4 4 1 5.5-5.1-2.7-5 2.7 1-5.5-4-4 5.5-.8z"/></svg>
+        <span class="fav-open-text">
+          <span class="fav-open-label">Favorieten</span>
+          <span class="fav-open-sub" id="fav-open-sub">Je zenders</span>
+        </span>
+        <svg class="fav-open-chev" viewBox="0 0 24 24" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg>
+      </button>
+    </section>
+
+    <!-- ─── Geluid ────────────────────────────────────────────────────────── -->
+    <section class="tab" id="tab-sound" role="tabpanel" aria-labelledby="tabbtn-sound" hidden>
+      <div class="window window-wide">
+        <p class="window-line">Geluidsstand nu</p>
+        <p class="window-mode" id="mode-now">--</p>
+      </div>
+      <div class="modes" id="modes" role="group" aria-label="Geluidsstand"></div>
+    </section>
+
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <nav class="tabbar" role="tablist" aria-label="Schermen">
+    <button class="tabbtn" id="tabbtn-control" role="tab" type="button" aria-selected="true" aria-controls="tab-control">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 12 16 7.5"/></svg>
+      Bediening
+    </button>
+    <button class="tabbtn" id="tabbtn-sound" role="tab" type="button" aria-selected="false" aria-controls="tab-sound" tabindex="-1">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10v4M8 6v12M12 9v6M16 4v16M20 10v4"/></svg>
+      Geluid
+    </button>
+  </nav>
+
+</div>
+
+<!-- ─── Instellingen en eerste keer ─────────────────────────────────────── -->
+<dialog class="sheet" id="settings" aria-labelledby="settings-title">
+  <form method="dialog" class="sheet-body" id="settings-form" novalidate>
+    <h2 class="sheet-title" id="settings-title">Instellingen</h2>
+
+    <section class="sheet-section">
+      <h3 class="sheet-head">Receiver</h3>
+      <p class="sheet-current" id="current-receiver"></p>
+      <button class="btn" id="search-btn" type="button">Zoeken op het netwerk</button>
+      <p class="sheet-status" id="search-status" role="status" aria-live="polite"></p>
+      <ul class="found" id="found"></ul>
+
+      <label class="field-label" for="host-input">Of vul het IP-adres in</label>
+      <div class="field-row">
+        <input class="field" id="host-input" inputmode="decimal" autocomplete="off" spellcheck="false" placeholder="10.0.0.54">
+        <button class="btn" id="host-btn" type="button">Gebruiken</button>
+      </div>
+      <p class="field-hint">Je vindt het op de receiver onder Instellingen → Netwerk → Informatie.</p>
+    </section>
+
+    <section class="sheet-section">
+      <h3 class="sheet-head">Knoppen op het scherm</h3>
+      <div class="choices" id="button-choices"></div>
+    </section>
+
+    <section class="sheet-section">
+      <h3 class="sheet-head"><label for="max-input">Maximaal volume</label></h3>
+      <div class="field-row">
+        <input class="range" id="max-input" type="range" min="30" max="98" step="1">
+        <output class="range-value" id="max-value" for="max-input"></output>
+      </div>
+      <p class="field-hint">Verder dan dit gaan de draaiknop en de plusknop niet. Met de afstandsbediening van de receiver kan het wel.</p>
+    </section>
+
+    <button class="btn btn-primary" id="done-btn" value="done">Klaar</button>
+  </form>
+</dialog>
+
+<!-- ─── Favorieten ────────────────────────────────────────────────────────── -->
+<dialog class="sheet" id="favorites" aria-labelledby="fav-title">
+  <div class="sheet-body">
+    <div class="sheet-top">
+      <h2 class="sheet-title" id="fav-title">Favorieten</h2>
+      <button class="btn btn-small" id="fav-edit" type="button" aria-pressed="false">Aanpassen</button>
+    </div>
+    <p class="sheet-status" id="fav-status" role="status" aria-live="polite"></p>
+
+    <ul class="fav-list" id="fav-list"></ul>
+
+    <div class="fav-tools" id="fav-tools" hidden>
+      <button class="btn" id="fav-add" type="button">Zender toevoegen</button>
+      <button class="btn" id="fav-import" type="button">Opnieuw ophalen van de receiver</button>
+      <p class="field-hint">Ophalen zet de receiver even op Online Music. Je volgorde, namen en adressen blijven staan.</p>
+    </div>
+
+    <form class="fav-form" id="fav-form" novalidate hidden>
+      <h3 class="sheet-head" id="fav-form-title">Zender aanpassen</h3>
+      <label class="field-label" for="fav-name">Naam</label>
+      <input class="field" id="fav-name" autocomplete="off" maxlength="80">
+      <label class="field-label" for="fav-url">Adres van de stream</label>
+      <input class="field" id="fav-url" type="url" inputmode="url" autocomplete="off" spellcheck="false" placeholder="http://">
+      <p class="field-hint" id="fav-url-hint"></p>
+      <p class="field-error" id="fav-error" role="alert"></p>
+      <div class="form-buttons">
+        <button class="btn btn-primary" id="fav-save" type="submit">Opslaan</button>
+        <button class="btn" id="fav-cancel" type="button">Annuleren</button>
+        <button class="btn btn-quiet" id="fav-delete" type="button">Verwijderen</button>
+      </div>
+    </form>
+
+    <button class="btn" id="fav-close" type="button">Sluiten</button>
+  </div>
+</dialog>
+
+<script type="module" src="./app.js"></script>
+</body>
+</html>

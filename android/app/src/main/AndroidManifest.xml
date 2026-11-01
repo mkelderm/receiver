@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  INTERNET is nodig om met de receiver te praten, maar de app gaat nooit het
+  internet op: MainActivity geeft alleen verzoeken door naar adressen op het
+  thuisnetwerk (10.x, 172.16-31.x en 192.168.x). De pagina zelf zit in de APK.
+
+  usesCleartextTraffic: de receiver kent alleen http, geen https.
+-->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+
+    <application
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.Receiver"
+        android:usesCleartextTraffic="true">
+
+        <!-- Safe Browsing en gebruiksstatistieken van de WebView zouden contact
+             met Google zoeken. De WebView laadt nooit een pagina van buiten,
+             dus dat heeft geen zin. -->
+        <meta-data
+            android:name="android.webkit.WebView.EnableSafeBrowsing"
+            android:value="false" />
+        <meta-data
+            android:name="android.webkit.WebView.MetricsOptOut"
+            android:value="true" />
+
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:windowSoftInputMode="adjustResize">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+    </application>
+
+</manifest>

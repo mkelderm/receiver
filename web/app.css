@@ -1,0 +1,1048 @@
+/* ───────────────────────────────────────────────────────────────────────────
+   Receiver — de voorkant van het apparaat, op je telefoon.
+
+   Eén ding valt op: het display. Een venster van donker glas met verlichte
+   cijfers, zoals op de receiver zelf, midden in een draaiknop. Al het andere
+   is rustig: vlakke knoppen, geen schaduwen, geen versiering.
+
+   Je gebruikt dit vanaf de bank, vaak met het licht uit. Daarom grote
+   aanraakvlakken, de bediening in het onderste deel van het scherm, en in het
+   donker nergens fel wit.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  color-scheme: light dark;
+
+  --font-ui: system-ui, Roboto, "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  /* Op Android is dit Roboto Condensed; de opschriften op een frontpaneel zijn
+     ook smal. */
+  --font-label: "sans-serif-condensed", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+
+  --s1: 0.25rem;
+  --s2: 0.5rem;
+  --s3: 0.75rem;
+  --s4: 1rem;
+  --s5: 1.5rem;
+  --s6: 2rem;
+
+  /* Licht: geborsteld aluminium. Het display blijft donker glas. */
+  --bg: #e2e5e7;
+  --panel: #f3f4f5;
+  --panel-press: #d6dbde;
+  --line: #c3c9cd;
+  --ink: #13242b;
+  --ink-muted: #4d6066;
+  --accent: #086a5f;
+  --warn: #9a5200;
+  --glass: #0b1a1c;
+  --glass-edge: #26383c;
+
+  /* De kleur van de fosforcijfers, in beide thema's gelijk. */
+  --phosphor: #7cf2df;
+  --phosphor-glow: rgba(124, 242, 223, 0.5);
+  --phosphor-ghost: rgba(124, 242, 223, 0.08);
+  --phosphor-dim: #3f8f84;
+  --amber: #ffb04a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Donker: rookglas met een zweem petrol. */
+    --bg: #13242b;
+    --panel: #1b3038;
+    --panel-press: #24414b;
+    --line: #2b4651;
+    --ink: #e2eeed;
+    --ink-muted: #93acaf;
+    --accent: #7cf2df;
+    --warn: #ffb04a;
+    --glass: #07130f;
+    --glass-edge: #2b4651;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 1rem/1.4 var(--font-ui);
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+}
+
+svg {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+/* ─── Opbouw ──────────────────────────────────────────────────────────────── */
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  height: 100%;
+  max-width: 30rem;
+  margin: 0 auto;
+}
+
+.tabs-body {
+  overflow-y: auto;
+  padding: var(--s2) var(--s4) var(--s4);
+}
+
+.tab {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s5);
+  min-height: 100%;
+}
+
+/* ─── Kop ─────────────────────────────────────────────────────────────────── */
+
+.bar {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  padding: var(--s3) var(--s3) var(--s2) var(--s4);
+}
+
+.bar-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.bar-name {
+  margin: 0;
+  font: 600 1.125rem/1.2 var(--font-ui);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.bar-state {
+  margin: 0.125rem 0 0;
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
+.icon-btn,
+.power {
+  display: grid;
+  place-items: center;
+  width: 3rem;
+  height: 3rem;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.icon-btn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--ink-muted);
+}
+
+.power {
+  background: var(--panel);
+  border: 2px solid var(--line);
+}
+
+.power svg {
+  width: 1.5rem;
+  height: 1.5rem;
+  color: var(--ink-muted);
+}
+
+.power[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.power[aria-pressed="true"] svg {
+  color: var(--accent);
+}
+
+.icon-btn:active,
+.power:active {
+  background: var(--panel-press);
+}
+
+/* ─── Draaiknop met display ───────────────────────────────────────────────── */
+
+.dial {
+  position: relative;
+  /* Ook liggend moet er onder de knop nog iets van de knoppen te zien zijn. */
+  width: min(80vw, 20rem, 60vh);
+  aspect-ratio: 1;
+  margin-top: var(--s2);
+  border-radius: 50%;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+.dial:active {
+  cursor: grabbing;
+}
+
+.dial:focus-visible {
+  outline-offset: -6px;
+}
+
+.dial-ring {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.dial-track {
+  stroke: var(--line);
+  stroke-width: 14;
+}
+
+.dial-level {
+  stroke: var(--accent);
+  stroke-width: 14;
+  transition: stroke 0.2s;
+}
+
+.dial-handle {
+  fill: var(--panel);
+  stroke: var(--accent);
+  stroke-width: 4;
+}
+
+.dial-tick {
+  stroke: var(--ink-muted);
+  stroke-width: 2;
+}
+
+.dial-tick-label {
+  fill: var(--ink-muted);
+  stroke: none;
+  font: 500 11px var(--font-label);
+  text-anchor: middle;
+  dominant-baseline: middle;
+}
+
+.dial[aria-disabled="true"] {
+  cursor: default;
+}
+
+.dial[aria-disabled="true"] .dial-level,
+.dial[aria-disabled="true"] .dial-handle {
+  stroke: var(--line);
+}
+
+.dial.is-muted .dial-level,
+.dial.is-muted .dial-handle {
+  stroke: var(--warn);
+}
+
+/* Het venster: altijd donker glas, ook in het lichte thema. */
+.window {
+  position: absolute;
+  inset: 24%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  border-radius: 14% / 18%;
+  background: var(--glass);
+  box-shadow: inset 0 0 0 1px var(--glass-edge), inset 0 6px 18px rgba(0, 0, 0, 0.55);
+  color: var(--phosphor);
+  pointer-events: none;
+}
+
+.window-line {
+  margin: 0;
+  max-width: 90%;
+  font: 500 0.875rem/1.1 var(--font-label);
+  letter-spacing: 0.04em;
+  color: var(--phosphor);
+  text-shadow: 0 0 6px var(--phosphor-glow);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.window-sub {
+  color: var(--phosphor-dim);
+  text-shadow: none;
+}
+
+.window-sub.is-amber {
+  color: var(--amber);
+  text-shadow: 0 0 6px rgba(255, 176, 74, 0.5);
+}
+
+.digits {
+  display: flex;
+  align-items: flex-end;
+  height: 3.6rem;
+}
+
+.digits svg {
+  height: 100%;
+  width: auto;
+  stroke: none;
+  overflow: visible;
+}
+
+.seg {
+  fill: var(--phosphor-ghost);
+}
+
+.seg.on {
+  fill: var(--phosphor);
+  filter: drop-shadow(0 0 3px var(--phosphor-glow));
+}
+
+.digits.is-dim .seg.on {
+  fill: var(--phosphor-dim);
+  filter: none;
+}
+
+/* ─── Knoppen onder de draaiknop ──────────────────────────────────────────── */
+
+/* De ring staat onderaan open; de knoppen schuiven daar half in. */
+.vol-buttons {
+  display: flex;
+  justify-content: center;
+  gap: var(--s5);
+  margin-top: -2.5rem;
+}
+
+.round {
+  display: grid;
+  place-items: center;
+  width: 4rem;
+  height: 4rem;
+  border: 2px solid var(--line);
+  border-radius: 50%;
+  background: var(--panel);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.round svg {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.round:active {
+  background: var(--panel-press);
+}
+
+.round-mute[aria-pressed="true"] {
+  border-color: var(--warn);
+  color: var(--warn);
+}
+
+.round:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* ─── Ingangen: drukknoppen met een lampje ─────────────────────────────────── */
+
+.sources {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--s2);
+  width: 100%;
+}
+
+.source {
+  position: relative;
+  min-height: 3.5rem;
+  padding: var(--s3) var(--s2) var(--s3) 1.625rem;
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--panel);
+  font: 500 0.9375rem/1.15 var(--font-label);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.source::before {
+  content: "";
+  position: absolute;
+  left: 0.6875rem;
+  top: 50%;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin-top: -0.21875rem;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.source[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.source[aria-pressed="true"]::before {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.source:active {
+  background: var(--panel-press);
+}
+
+.source:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.sources.cols-2 {
+  grid-template-columns: repeat(2, 1fr);
+}
+
+/* Bezig: het lampje knippert zolang de app door het menu van de receiver loopt. */
+.source[aria-busy="true"]::before {
+  animation: blink 0.8s steps(2, jump-none) infinite;
+  background: var(--accent);
+}
+
+.fav-open[aria-busy="true"] svg:first-child {
+  animation: blink 0.8s steps(2, jump-none) infinite;
+  color: var(--accent);
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0.2;
+  }
+}
+
+/* Favorieten: een brede knop, want hij opent een lijst in plaats van te schakelen. */
+.fav-open {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  width: 100%;
+  min-height: 3.75rem;
+  margin-top: calc(var(--s3) * -1);
+  padding: var(--s2) var(--s3) var(--s2) var(--s4);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--panel);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.fav-open svg {
+  flex: none;
+  width: 1.375rem;
+  height: 1.375rem;
+  color: var(--ink-muted);
+}
+
+.fav-open[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.fav-open[aria-pressed="true"] svg:first-child {
+  color: var(--accent);
+  fill: var(--accent);
+}
+
+.fav-open-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.fav-open-label {
+  font: 600 1rem/1.2 var(--font-label);
+}
+
+.fav-open-sub {
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.fav-open:active {
+  background: var(--panel-press);
+}
+
+.fav-open:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ─── Melding: stand-by of geen verbinding ────────────────────────────────── */
+
+.notice {
+  width: 100%;
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  background: var(--panel);
+}
+
+.notice-text {
+  margin: 0;
+  font-weight: 600;
+}
+
+.notice-hint {
+  margin: var(--s1) 0 var(--s3);
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
+.notice-hint:empty {
+  margin-bottom: var(--s2);
+}
+
+/* ─── Geluid ──────────────────────────────────────────────────────────────── */
+
+.window-wide {
+  position: static;
+  width: 100%;
+  min-height: 6.5rem;
+  margin-top: var(--s2);
+  border-radius: 1rem;
+  padding: var(--s4);
+}
+
+.window-mode {
+  margin: 0;
+  max-width: 100%;
+  font: 500 1.75rem/1.15 var(--font-label);
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-shadow: 0 0 8px var(--phosphor-glow);
+  overflow-wrap: anywhere;
+}
+
+.modes {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--s2);
+  width: 100%;
+}
+
+.mode {
+  position: relative;
+  display: grid;
+  gap: 0.125rem;
+  padding: var(--s3) var(--s4) var(--s3) 2rem;
+  border: 1px solid var(--line);
+  border-radius: 0.75rem;
+  background: var(--panel);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mode::before {
+  content: "";
+  position: absolute;
+  left: 0.875rem;
+  top: 1.15rem;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.mode-label {
+  font: 600 1.0625rem/1.2 var(--font-label);
+}
+
+.mode-hint {
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+  line-height: 1.3;
+}
+
+.mode[aria-pressed="true"] {
+  border-color: var(--accent);
+}
+
+.mode[aria-pressed="true"]::before {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.mode:active {
+  background: var(--panel-press);
+}
+
+.mode:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+/* ─── Tabbladen onderaan ──────────────────────────────────────────────────── */
+
+.tabbar {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.tabbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.2rem;
+  padding: var(--s2) 0 var(--s3);
+  border: 0;
+  border-top: 3px solid transparent;
+  background: transparent;
+  color: var(--ink-muted);
+  font: 500 0.8125rem/1 var(--font-ui);
+  cursor: pointer;
+}
+
+.tabbtn svg {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.tabbtn[aria-selected="true"] {
+  border-top-color: var(--accent);
+  color: var(--ink);
+}
+
+.tabbtn[aria-selected="true"] svg {
+  color: var(--accent);
+}
+
+/* ─── Melding onderin ─────────────────────────────────────────────────────── */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 5.5rem;
+  max-width: calc(100% - 2rem);
+  padding: var(--s2) var(--s4);
+  border-radius: 0.5rem;
+  background: var(--ink);
+  color: var(--bg);
+  font-size: 0.9375rem;
+  transform: translate(-50%, 0.5rem);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.toast.is-shown {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+/* ─── Knoppen en velden ───────────────────────────────────────────────────── */
+
+.btn {
+  min-height: 2.75rem;
+  padding: 0 var(--s4);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--bg);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.btn:active {
+  background: var(--panel-press);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.btn-primary {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--bg);
+}
+
+.field-label {
+  display: block;
+  margin: var(--s4) 0 var(--s1);
+  font-weight: 600;
+  font-size: 0.9375rem;
+}
+
+.field-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+}
+
+.field {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.75rem;
+  padding: 0 var(--s3);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--bg);
+  color: var(--ink);
+  font: inherit;
+}
+
+.field[aria-invalid="true"] {
+  border-color: var(--warn);
+}
+
+.field-hint {
+  margin: var(--s1) 0 0;
+  color: var(--ink-muted);
+  font-size: 0.8125rem;
+}
+
+.range {
+  flex: 1;
+  accent-color: var(--accent);
+  min-height: 2.75rem;
+}
+
+.range-value {
+  min-width: 2.5rem;
+  text-align: right;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ─── Instellingen: een vel dat van onderen omhoog komt ────────────────────── */
+
+.sheet {
+  width: 100%;
+  max-width: 30rem;
+  max-height: 92%;
+  margin: auto auto 0;
+  padding: 0;
+  border: 0;
+  border-radius: 1.25rem 1.25rem 0 0;
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.sheet::backdrop {
+  background: rgba(7, 19, 15, 0.55);
+}
+
+.sheet-body {
+  display: flex;
+  flex-direction: column;
+  padding: var(--s5) var(--s4) var(--s4);
+}
+
+.sheet-title {
+  margin: 0 0 var(--s2);
+  font-size: 1.25rem;
+}
+
+.sheet-section {
+  padding: var(--s4) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.sheet-section:last-of-type {
+  border-bottom: 0;
+}
+
+.sheet-head {
+  margin: 0 0 var(--s2);
+  font-size: 1rem;
+}
+
+.sheet-current {
+  margin: 0 0 var(--s3);
+  color: var(--ink-muted);
+}
+
+.sheet-status {
+  margin: var(--s2) 0 0;
+  color: var(--ink-muted);
+  font-size: 0.875rem;
+}
+
+.sheet-status:empty {
+  display: none;
+}
+
+.found {
+  display: grid;
+  gap: var(--s2);
+  margin: var(--s2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.found-btn {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: var(--s2) var(--s3);
+  border: 1px solid var(--accent);
+  border-radius: 0.625rem;
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+}
+
+.found-btn small {
+  display: block;
+  color: var(--ink-muted);
+}
+
+.sheet-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.sheet-top .sheet-title {
+  margin: 0;
+}
+
+.btn-small {
+  min-height: 2.5rem;
+  padding: 0 var(--s3);
+}
+
+.btn-small[aria-pressed="true"] {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.btn-quiet {
+  border-color: transparent;
+  background: transparent;
+  color: var(--warn);
+}
+
+#fav-close {
+  margin-top: var(--s4);
+}
+
+/* ─── Favorietenlijst ─────────────────────────────────────────────────────── */
+
+.fav-list {
+  display: grid;
+  gap: var(--s1);
+  margin: var(--s3) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.fav {
+  position: relative;
+  display: grid;
+  width: 100%;
+  min-height: 3.25rem;
+  padding: var(--s2) var(--s3) var(--s2) 1.75rem;
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--bg);
+  text-align: left;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.fav::before {
+  content: "";
+  position: absolute;
+  left: 0.75rem;
+  top: 50%;
+  width: 0.4375rem;
+  height: 0.4375rem;
+  margin-top: -0.21875rem;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.fav[aria-current="true"] {
+  border-color: var(--accent);
+}
+
+.fav[aria-current="true"]::before,
+.fav[aria-busy="true"]::before {
+  background: var(--accent);
+  box-shadow: 0 0 6px var(--accent);
+}
+
+.fav[aria-busy="true"]::before {
+  animation: blink 0.8s steps(2, jump-none) infinite;
+}
+
+.fav:active {
+  background: var(--panel-press);
+}
+
+.fav:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.fav-name {
+  font: 500 1rem/1.25 var(--font-label);
+  overflow-wrap: anywhere;
+}
+
+.fav-note {
+  color: var(--ink-muted);
+  font-size: 0.8125rem;
+}
+
+/* Aanpassen: elke regel krijgt knoppen voor omhoog, omlaag, wijzigen, verbergen. */
+.fav-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s1);
+  min-height: 3.25rem;
+  padding: var(--s1) var(--s1) var(--s1) var(--s3);
+  border: 1px solid var(--line);
+  border-radius: 0.625rem;
+  background: var(--bg);
+}
+
+.fav-row .fav-text {
+  display: grid;
+  flex: 1;
+  min-width: 0;
+}
+
+.fav-row.is-hidden .fav-text {
+  opacity: 0.5;
+}
+
+.mini {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 2.75rem;
+  height: 2.75rem;
+  border: 0;
+  border-radius: 0.5rem;
+  background: transparent;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.mini svg {
+  width: 1.25rem;
+  height: 1.25rem;
+}
+
+.mini:active {
+  background: var(--panel-press);
+}
+
+.mini:disabled {
+  opacity: 0.25;
+  cursor: default;
+}
+
+.fav-tools {
+  display: grid;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+.fav-form {
+  margin-top: var(--s4);
+  padding-top: var(--s4);
+  border-top: 1px solid var(--line);
+}
+
+.fav-form .field {
+  width: 100%;
+}
+
+.field-error {
+  margin: var(--s2) 0 0;
+  color: var(--warn);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.field-error:empty {
+  display: none;
+}
+
+.form-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s2);
+  margin-top: var(--s4);
+}
+
+/* ─── Knoppen kiezen in de instellingen ───────────────────────────────────── */
+
+.choices {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--s1) var(--s3);
+}
+
+.choice {
+  display: flex;
+  align-items: center;
+  gap: var(--s2);
+  min-height: 2.75rem;
+  cursor: pointer;
+}
+
+.choice input {
+  width: 1.25rem;
+  height: 1.25rem;
+  margin: 0;
+  accent-color: var(--accent);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+    animation: none !important;
+  }
+}

@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<item>
+<FriendlyName><value>Denon AVR-X1200W</value></FriendlyName>
+<Power><value>ON</value></Power>
+<ZonePower><value>ON</value></ZonePower>
+<RenameZone><value>MAIN ZONE</value></RenameZone>
+<TopMenuLink><value>ON</value></TopMenuLink>
+<VideoSelectDisp><value>ON</value></VideoSelectDisp>
+<VideoSelect><value>GAME</value></VideoSelect>
+<VideoSelectOnOff><value>ON</value></VideoSelectOnOff>
+<VideoSelectLists>
+<value index='ON' >On</value>
+<value index='OFF' >Off</value>
+</VideoSelectLists>
+<ECOModeDisp><value>ON</value></ECOModeDisp>
+<ECOMode><value>AUTO</value></ECOMode>
+<ECOModeLists>
+<value index='ON'  table='ECO : ON' param=''/>
+<value index='OFF'  table='ECO : OFF' param=''/>
+<value index='AUTO'  table='ECO : AUTO' param=''/>
+</ECOModeLists>
+<AddSourceDisplay><value>FALSE</value></AddSourceDisplay>
+<ModelId><value>1</value></ModelId>
+<BrandId><value>DENON_MODEL</value></BrandId>
+<SalesArea><value>4</value></SalesArea>
+<InputFuncSelect><value>Online Music</value></InputFuncSelect>
+<NetFuncSelect><value>IRADIO</value></NetFuncSelect>
+<selectSurround><value>Stereo                         </value></selectSurround>
+<VolumeDisplay><value>Absolute</value></VolumeDisplay>
+<MasterVolume><value>-54.5</value></MasterVolume>
+<Mute><value>off</value></Mute>
+<RemoteMaintenance><value></value></RemoteMaintenance>
+<SubwooferDisplay><value>FALSE</value></SubwooferDisplay>
+<Zone2VolDisp><value>TRUE</value></Zone2VolDisp>
+<SleepOff><value>Off</value></SleepOff>
+</item>

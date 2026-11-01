@@ -1,0 +1,12 @@
+{
+  "name": "receiver",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Eenvoudige afstandsbediening voor een Denon-receiver op het thuisnetwerk",
+  "scripts": {
+    "test": "node test/denon.test.mjs",
+    "icons": "node tools/make-icons.mjs",
+    "dev": "node tools/dev-server.mjs"
+  }
+}
