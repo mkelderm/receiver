@@ -697,7 +697,7 @@ async function ensureNetwork() {
   if (!state.power) {
     await send('ZMON')
     state.power = true
-    holdFor('power', 8000)
+    holdFor('power', 20_000)
     render()
     await sleep(5000)
   }
@@ -1156,8 +1156,9 @@ function togglePower() {
   if (state.reachable !== true) return
   const on = !state.power
   state.power = on
-  // Aanzetten duurt een paar seconden; zo lang meldt de receiver nog stand-by.
-  holdFor('power', 8000)
+  // Na aan- of uitzetten meldt de statuspagina nog tot zo'n twintig seconden de
+  // oude stand (gemeten); zo lang geldt wat je zelf koos.
+  holdFor('power', 20_000)
   render()
   send(on ? 'ZMON' : 'ZMOFF').then(() => refreshSoon(2000))
 }
