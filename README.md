@@ -49,18 +49,48 @@ namen, adressen en verborgen zenders staan.
 
 ## Installeren
 
-Nog geen release op GitHub. De testbuild staat na `./gradlew assembleDebug`
-in `android/app/build/outputs/apk/debug/app-debug.apk` en heet op de telefoon
-*Receiver (test)*.
+1. Open op je telefoon in Chrome de
+   [laatste release](https://github.com/mkelderm/receiver/releases/latest).
+2. Tik onder *Assets* op **receiver-x.y.z.apk**.
+3. Android vraagt of Chrome apps mag installeren. Tik op **Instellingen**, zet
+   *Toestaan van deze bron* aan en ga terug.
+4. Tik op **Installeren**.
 
-De opzet is dezelfde als bij Suikerwater: zodra de repository op GitHub staat,
-bouwt `.github/workflows/android.yml` bij elke push een test-APK en bij een tag
-`vX.Y.Z` een ondertekende release. Daarvoor zijn de geheimen
-`ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` en
-`ANDROID_KEY_PASSWORD` nodig, met een eigen sleutel voor deze app.
+Bijwerken gaat net zo: download de nieuwe APK en installeer hem over de oude
+heen. Je favorieten en instellingen blijven staan.
 
-**Op de receiver** moet *Netwerkbeheer* (Network Control) aan staan, anders is
-hij in stand-by niet te bereiken en kan de app hem niet aanzetten.
+> Play Protect kan waarschuwen dat de app onbekend is. Dat klopt: hij komt niet
+> uit de Play Store. Kies *Toch installeren*.
+
+De telefoon moet op de wifi thuis zitten. **Op de receiver** moet
+*Netwerkbeheer* (Network Control) aan staan, anders is hij in stand-by niet te
+bereiken en kan de app hem niet aanzetten.
+
+### Een nieuwe versie uitbrengen
+
+Net als bij Suikerwater: commit en push naar `main`, en geef de versie een tag.
+
+```bash
+git tag v1.0.1
+git push origin v1.0.1
+```
+
+De workflow *Android* draait eerst de tests en bouwt dan de ondertekende APK
+als release. Zonder tag komt er bij elke push alleen een testbuild als
+artefact bij de run; die heet *Receiver (test)* en komt naast de echte app te
+staan. `v1.2.3` wordt versiecode 10203, dus minor en patch gaan tot en met 99.
+
+### De ondertekensleutel
+
+Android installeert een update alleen als die met **dezelfde sleutel** is
+ondertekend. Die staat op de pc waar hij gemaakt is, in de map
+`.receiver-signing` in je gebruikersmap (het sleutelbestand en het
+wachtwoord), en als geheimen in de repository: `ANDROID_KEYSTORE_BASE64`,
+`ANDROID_KEYSTORE_PASSWORD`, `ANDROID_KEY_ALIAS` (`receiver`) en
+`ANDROID_KEY_PASSWORD`. Het is een andere sleutel dan die van Suikerwater.
+
+**Maak een reservekopie van die map.** Zonder de sleutel kun je geen updates
+meer uitbrengen en moet je de app verwijderen en opnieuw installeren.
 
 ---
 
