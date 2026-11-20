@@ -9,7 +9,8 @@ Twee tabbladen:
 - **Bediening**: aan/uit, een draaiknop voor het volume met het display van de
   receiver erin, harder/zachter/dempen, de ingangen die je gebruikt, en
   **Favorieten**.
-- **Geluid**: de geluidsstand (Automatisch, Stereo, Direct, Film, Muziek, Game).
+- **Geluid**: de geluidsstand (Automatisch, Stereo, Direct, Film, Muziek, Game)
+  en de **balans** tussen links en rechts.
 
 De app zoekt de receiver zelf op de wifi. Lukt dat niet, dan vul je bij
 Instellingen het IP-adres in.
@@ -25,6 +26,20 @@ Instellingen het IP-adres in.
 | **Spotify** | opent de Spotify-app. Kies daar de receiver als luidspreker (Spotify Connect); de receiver schakelt dan zelf om. Vanuit deze app valt Spotify niet te starten. |
 | **Favorieten** | de lijst met je zenders; tik er een aan en hij speelt. |
 | **Draaiknop** | draai met je vinger om de ring. Een tik laat het volume nooit verspringen. Verder dan het maximum (standaard 70, bij Instellingen aan te passen) gaat hij niet. |
+
+### Balans
+
+De receiver heeft geen balansknop, maar wel een niveau per luidspreker
+(Instellingen → Luidsprekers → Niveaus). De balans op het tabblad Geluid zet de
+ene kant zachter: schuif naar rechts en voor links en surround links gaan
+omlaag, en andersom. Er gaat nooit iets harder, en de middenluidspreker en de
+subwoofer blijven zoals ze zijn. Het geldt voor alle ingangen en de receiver
+onthoudt het, ook na uitzetten. Hoogstens 6 dB naar één kant, in stappen van
+0,5 dB.
+
+De niveaus zonder balans (het midden) bewaart de app op de telefoon, zodat
+een eerdere inmeting met Audyssey niet verloren gaat. Heeft iemand de niveaus op
+de receiver zelf veranderd, dan neemt de app de nieuwe stand als midden.
 
 ### Favorieten
 
@@ -118,7 +133,13 @@ De X1200W heeft een webserver op poort 80:
   telnetprotocol uit (`MV255` is volume 25,5, `SITV` is TV Audio, `MSSTEREO`
   is stereo);
 - op poort 8080 is hij ook een DLNA-speler (UPnP AVTransport); zo speelt hij
-  een stream van een eigen adres af.
+  een stream van een eigen adres af;
+- de luidsprekerniveaus staan op de instelpagina
+  `SETUP/SPEAKERS/LEVELS/d_speakersetup.asp` en gaan met `SSLEVFL 485`
+  (voor links op -1,5 dB). Die pagina loopt na een wijziging een paar seconden
+  achter, en twee commando's vlak na elkaar laat de receiver soms liggen; de
+  app wacht daarom tussen de commando's, controleert na afloop en stuurt wat
+  ontbreekt nog eens.
 
 Een pagina in de WebView mag de receiver niet zelf aanspreken (ander adres,
 geen https, geen CORS). Daarom vraagt de pagina alles op haar eigen adres op,

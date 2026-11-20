@@ -9,6 +9,7 @@
 // op, en deze server doet hier precies hetzelfde, onder dezelfde adressen:
 //
 //   /denon/<ip>/goform/<pagina>.xml?<commando>   doorgegeven aan http://<ip>/goform/...
+//   /denon/<ip>/SETUP/SPEAKERS/LEVELS/...        de luidsprekerniveaus, voor de balans
 //   /denon/<ip>/dlna/play?url=..&title=..        speelt een stream af (UPnP AVTransport)
 //   /denon-discover                              zoekt receivers op het netwerk (SSDP)
 //
@@ -42,7 +43,8 @@ function isLanAddress(host) {
   return b[0] === 10 || (b[0] === 172 && b[1] >= 16 && b[1] <= 31) || (b[0] === 192 && b[1] === 168)
 }
 
-const FORWARD = /^\/denon\/([0-9.]+)\/(goform\/[A-Za-z0-9_]+\.xml)$/
+// De goform-pagina's, en de pagina met de luidsprekerniveaus (voor de balans).
+const FORWARD = /^\/denon\/([0-9.]+)\/(goform\/[A-Za-z0-9_]+\.xml|SETUP\/SPEAKERS\/LEVELS\/d_speakersetup\.asp)$/
 const QUERY = /^[A-Za-z0-9%/?._-]*$/
 
 function fetchText(url, timeout = 4000) {
@@ -64,7 +66,8 @@ async function forward(res, host, path, query) {
   }
   try {
     const r = await fetchText(`http://${host}/${path}${query ? '?' + query : ''}`)
-    res.writeHead(r.status, { 'Content-Type': 'text/xml; charset=utf-8', 'Cache-Control': 'no-store' })
+    const type = path.endsWith('.asp') ? 'text/html' : 'text/xml'
+    res.writeHead(r.status, { 'Content-Type': `${type}; charset=utf-8`, 'Cache-Control': 'no-store' })
     res.end(r.body)
   } catch {
     res.writeHead(504, { 'Content-Type': 'text/plain; charset=utf-8' }).end('Receiver niet bereikbaar')

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<HTML>
+<HEAD>
+<META http-equiv="Pragma" content="no-cache" />
+<META http-equiv="Cache-Control" content="no-cache, must-revalidate" />
+<META http-equiv="Expires" content="-1" />
+<META http-equiv="Content-Type" CONTENT="text/html; charset=utf-8">
+<meta http-equiv="content-style-type" content="text/css">
+<link rel="stylesheet" href="/goform/formCssDefault.css" type="text/css">
+<TITLE>Setup Menu</TITLE>
+</HEAD>
+
+<script language="javaScript1.2">
+<!--
+	window.onload = function() {
+		if(document.spsetup.setPureDirectOn.value == "ON"){
+			location.href = "../../18_OTHERS/d_othersPureDirect.asp";
+		}else if(document.spsetup.setSetupLock.value == "ON"){
+			location.href = "../../18_OTHERS/d_othersSetupLock.asp";
+		}
+	}
+
+	function showValueCVFL () {
+			document.getElementById("showRangeAreaCVFL").innerHTML = document.getElementById("RangeCVFL").value;
+			document.spsetup.textCVFL.value = document.getElementById("RangeCVFL").value;
+	}
+
+	function showValueCVFR () {
+			document.getElementById("showRangeAreaCVFR").innerHTML = document.getElementById("RangeCVFR").value;
+			document.spsetup.textCVFR.value = document.getElementById("RangeCVFR").value;
+	}
+
+	function showValueCVC () {
+			document.getElementById("showRangeAreaCVC").innerHTML = document.getElementById("RangeCVC").value;
+			document.spsetup.textCVC.value = document.getElementById("RangeCVC").value;
+	}
+
+	function showValueCVSW () {
+			document.getElementById("showRangeAreaCVSW").innerHTML = document.getElementById("RangeCVSW").value;
+			document.spsetup.textCVSW.value = document.getElementById("RangeCVSW").value;
+	}
+
+	function showValueCVSW2 () {
+			document.getElementById("showRangeAreaCVSW2").innerHTML = document.getElementById("RangeCVSW2").value;
+			document.spsetup.textCVSW2.value = document.getElementById("RangeCVSW2").value;
+	}
+
+	function showValueCVSL () {
+			document.getElementById("showRangeAreaCVSL").innerHTML = document.getElementById("RangeCVSL").value;
+			document.spsetup.textCVSL.value = document.getElementById("RangeCVSL").value;
+	}
+
+	function showValueCVSR () {
+			document.getElementById("showRangeAreaCVSR").innerHTML = document.getElementById("RangeCVSR").value;
+			document.spsetup.textCVSR.value = document.getElementById("RangeCVSR").value;
+	}
+
+	function showValueCVSBL () {
+			document.getElementById("showRangeAreaCVSBL").innerHTML = document.getElementById("RangeCVSBL").value;
+			document.spsetup.textCVSBL.value = document.getElementById("RangeCVSBL").value;
+	}
+
+	function showValueCVSBR () {
+			document.getElementById("showRangeAreaCVSBR").innerHTML = document.getElementById("RangeCVSBR").value;
+			document.spsetup.textCVSBR.value = document.getElementById("RangeCVSBR").value;
+	}
+
+	function showValueCVSB () {
+			document.getElementById("showRangeAreaCVSB").innerHTML = document.getElementById("RangeCVSB").value;
+			document.spsetup.textCVSB.value = document.getElementById("RangeCVSB").value;
+	}
+
+	function showValueCVFHL () {
+			document.getElementById("showRangeAreaCVFHL").innerHTML = document.getElementById("RangeCVFHL").value;
+			document.spsetup.textCVFHL.value = document.getElementById("RangeCVFHL").value;
+	}
+
+	function showValueCVFHR () {
+			document.getElementById("showRangeAreaCVFHR").innerHTML = document.getElementById("RangeCVFHR").value;
+			document.spsetup.textCVFHR.value = document.getElementById("RangeCVFHR").value;
+	}
+
+	function showValueCVFWL () {
+			document.getElementById("showRangeAreaCVFWL").innerHTML = document.getElementById("RangeCVFWL").value;
+			document.spsetup.textCVFWL.value = document.getElementById("RangeCVFWL").value;
+	}
+
+	function showValueCVFWR () {
+			document.getElementById("showRangeAreaCVFWR").innerHTML = document.getElementById("RangeCVFWR").value;
+			document.spsetup.textCVFWR.value = document.getElementById("RangeCVFWR").value;
+	}
+
+	function showValueCVTFL () {
+			document.getElementById("showRangeAreaCVTFL").innerHTML = document.getElementById("RangeCVTFL").value;
+			document.spsetup.textCVTFL.value = document.getElementById("RangeCVTFL").value;
+	}
+
+	function showValueCVTFR () {
+			document.getElementById("showRangeAreaCVTFR").innerHTML = document.getElementById("RangeCVTFR").value;
+			document.spsetup.textCVTFR.value = document.getElementById("RangeCVTFR").value;
+	}
+
+	function showValueCVTML () {
+			document.getElementById("showRangeAreaCVTML").innerHTML = document.getElementById("RangeCVTML").value;
+			document.spsetup.textCVTML.value = document.getElementById("RangeCVTML").value;
+	}
+
+	function showValueCVTMR () {
+			document.getElementById("showRangeAreaCVTMR").innerHTML = document.getElementById("RangeCVTMR").value;
+			document.spsetup.textCVTMR.value = document.getElementById("RangeCVTMR").value;
+	}
+
+
+	function showValueCVTRL () {
+			document.getElementById("showRangeAreaCVTRL").innerHTML = document.getElementById("RangeCVTRL").value;
+			document.spsetup.textCVTRL.value = document.getElementById("RangeCVTRL").value;
+	}
+
+	function showValueCVTRR () {
+			document.getElementById("showRangeAreaCVTRR").innerHTML = document.getElementById("RangeCVTRR").value;
+			document.spsetup.textCVTRR.value = document.getElementById("RangeCVTRR").value;
+	}
+
+	function showValueCVRHL () {
+			document.getElementById("showRangeAreaCVRHL").innerHTML = document.getElementById("RangeCVRHL").value;
+			document.spsetup.textCVRHL.value = document.getElementById("RangeCVRHL").value;
+	}
+
+	function showValueCVRHR () {
+			document.getElementById("showRangeAreaCVRHR").innerHTML = document.getElementById("RangeCVRHR").value;
+			document.spsetup.textCVRHR.value = document.getElementById("RangeCVRHR").value;
+	}
+
+	function showValueCVFDL () {
+			document.getElementById("showRangeAreaCVFDL").innerHTML = document.getElementById("RangeCVFDL").value;
+			document.spsetup.textCVFDL.value = document.getElementById("RangeCVFDL").value;
+	}
+
+	function showValueCVFDR () {
+			document.getElementById("showRangeAreaCVFDR").innerHTML = document.getElementById("RangeCVFDR").value;
+			document.spsetup.textCVFDR.value = document.getElementById("RangeCVFDR").value;
+	}
+
+	function showValueCVSDL () {
+			document.getElementById("showRangeAreaCVSDL").innerHTML = document.getElementById("RangeCVSDL").value;
+			document.spsetup.textCVSDL.value = document.getElementById("RangeCVSDL").value;
+	}
+
+	function showValueCVSDR () {
+			document.getElementById("showRangeAreaCVSDR").innerHTML = document.getElementById("RangeCVSDR").value;
+			document.spsetup.textCVSDR.value = document.getElementById("RangeCVSDR").value;
+	}
+
+	function showValueCVBDL () {
+			document.getElementById("showRangeAreaCVBDL").innerHTML = document.getElementById("RangeCVBDL").value;
+			document.spsetup.textCVBDL.value = document.getElementById("RangeCVBDL").value;
+	}
+
+	function showValueCVBDR () {
+			document.getElementById("showRangeAreaCVBDR").innerHTML = document.getElementById("RangeCVBDR").value;
+			document.spsetup.textCVBDR.value = document.getElementById("RangeCVBDR").value;
+	}
+
+	function showValueCVSHL () {
+			document.getElementById("showRangeAreaCVSHL").innerHTML = document.getElementById("RangeCVSHL").value;
+			document.spsetup.textCVSHL.value = document.getElementById("RangeCVSHL").value;
+	}
+
+	function showValueCVSHR () {
+			document.getElementById("showRangeAreaCVSHR").innerHTML = document.getElementById("RangeCVSHR").value;
+			document.spsetup.textCVSHR.value = document.getElementById("RangeCVSHR").value;
+	}
+
+	function showValueCVTS () {
+			document.getElementById("showRangeAreaCVTS").innerHTML = document.getElementById("RangeCVTS").value;
+			document.spsetup.textCVTS.value = document.getElementById("RangeCVTS").value;
+	}
+
+
+	function buttonClickSet() {
+		document.spsetup.setCLA.value = "Set";
+		CLASubmit();
+	}
+
+	function CLASubmit() {
+		document.spsetup.submit();
+	}
+
+
+// -->
+</script>
+
+<body bgcolor="#222222">
+<FORM name="spsetup" action="s_speakersetup.asp" method="POST" target="spsetup2">
+
+
+<INPUT type='hidden' name='setPureDirectOn' value='OFF'>
+<INPUT type='hidden' name='setSetupLock' value='OFF'>
+
+
+<TABLE>
+<TR>
+	<TD nowrap><div class='Icon'><img src="../../../img/Setup_Speakers_Blue.png"></div><div class="Title">Speakers/Levels</div><TD>
+</TR>
+<TR>
+	<TD><div class="HelpText">Manually adjusts the levels for each channel</div><TD>
+<TR>
+</TABLE>
+
+<HR size="2">
+
+<TABLE border="0">
+<TR><TD height='30'><B>Front L</B></TD><TD><input id='RangeCVFL' type='range' value='0.0' min='-12' max='12' step='0.5' style='width:300px' onchange='showValueCVFL();'/><span id='showRangeAreaCVFL'>&nbsp;&nbsp;0.0</span><INPUT type='hidden' name='textCVFL' value='0.0'> dB</TD></TR><TR><TD height='30'><B>Center</B></TD><TD><input id='RangeCVC' type='range' value='0.0' min='-12' max='12' step='0.5' style='width:300px' onchange='showValueCVC();'/><span id='showRangeAreaCVC'>&nbsp;&nbsp;0.0</span><INPUT type='hidden' name='textCVC' value='0.0'> dB</TD></TR><TR><TD height='30'><B>Front R</B></TD><TD><input id='RangeCVFR' type='range' value='0.0' min='-12' max='12' step='0.5' style='width:300px' onchange='showValueCVFR();'/><span id='showRangeAreaCVFR'>&nbsp;&nbsp;0.0</span><INPUT type='hidden' name='textCVFR' value='0.0'> dB</TD></TR><TR><TD height='30'><B>Surround R</B></TD><TD><input id='RangeCVSR' type='range' value='0.0' min='-12' max='12' step='0.5' style='width:300px' onchange='showValueCVSR();'/><span id='showRangeAreaCVSR'>&nbsp;&nbsp;0.0</span><INPUT type='hidden' name='textCVSR' value='0.0'> dB</TD></TR><TR><TD height='30'><B>Surround L</B></TD><TD><input id='RangeCVSL' type='range' value='0.0' min='-12' max='12' step='0.5' style='width:300px' onchange='showValueCVSL();'/><span id='showRangeAreaCVSL'>&nbsp;&nbsp;0.0</span><INPUT type='hidden' name='textCVSL' value='0.0'> dB</TD></TR><TR><TD height='30'>&nbsp;<INPUT type='button' name='setbtnCLA' value='Set' onClick='buttonClickSet()'><INPUT type='hidden' name='setCLA' value='off'</TD></TR>
+</TABLE>
+
+</FORM>
+</BODY>
+</HTML>

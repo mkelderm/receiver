@@ -417,3 +417,94 @@ export function moveFavorite(list, id, delta) {
   ;[out[i], out[j]] = [out[j], out[i]]
   return out
 }
+
+/* ─── Balans ──────────────────────────────────────────────────────────────── */
+
+// De receiver heeft geen balansknop. Wel heeft elke luidspreker een eigen
+// niveau (Instellingen → Luidsprekers → Niveaus), van -12 tot +12 dB in halve
+// stappen, voor alle ingangen tegelijk. Balans is hier: de ene kant zachter
+// zetten. Nooit iets harder, zodat het nergens gaat oversturen, en de
+// middenluidspreker en de subwoofer blijven zoals ze zijn.
+
+/** De pagina van de receiver met de luidsprekerniveaus, in dB. */
+export const LEVELS_PAGE = 'SETUP/SPEAKERS/LEVELS/d_speakersetup.asp'
+
+/** Hoe ver de balans naar één kant mag. */
+export const BALANCE_MAX = 6
+
+/**
+ * Leest de luidsprekerniveaus van die pagina: { FL: 0, FR: -1.5, C: 0, ... }.
+ * Alleen de luidsprekers die zijn aangesloten staan erin.
+ */
+export function parseLevels(html) {
+  const out = {}
+  for (const m of html.matchAll(/id='RangeCV([A-Z0-9]+)'\s+type='range'\s+value='(-?\d+(?:\.\d)?)'/g)) {
+    out[m[1]] = Number(m[2])
+  }
+  return out
+}
+
+/** Links of rechts: FL, SL, SBL, FHL, ... eindigen op L; de rest is geen kant. */
+export function sideOf(channel) {
+  if (channel === 'SW' || channel === 'SW2' || channel === 'C' || channel === 'SB') return null
+  if (channel.endsWith('L')) return 'L'
+  if (channel.endsWith('R')) return 'R'
+  return null
+}
+
+/** Het commando dat een luidsprekerniveau zet: FL op -1,5 dB wordt SSLEVFL 485. */
+export function levelCommand(channel, db) {
+  const v = Math.min(62, Math.max(38, Math.round((50 + db) * 2) / 2))
+  return `SSLEV${channel} ${String(Math.floor(v)).padStart(2, '0')}${v % 1 ? '5' : ''}`
+}
+
+/**
+ * De niveaus bij een balans `b` ten opzichte van `base` (de niveaus zonder
+ * balans). Positief: de linkerkant is b dB zachter, het geluid schuift naar
+ * rechts. Negatief: de rechterkant zachter.
+ */
+export function balanceLevels(base, b) {
+  const out = {}
+  for (const [ch, db] of Object.entries(base)) {
+    const side = sideOf(ch)
+    const down = side === 'L' ? Math.max(b, 0) : side === 'R' ? Math.max(-b, 0) : 0
+    out[ch] = Math.max(-12, db - down)
+  }
+  return out
+}
+
+/**
+ * Welke balans past bij deze niveaus, uitgaande van `base`? Geeft null als ze
+ * daar niet bij passen (iemand heeft op de receiver zelf iets anders aangepast);
+ * dan worden de huidige niveaus de nieuwe basis.
+ */
+export function balanceFrom(levels, base) {
+  const chans = Object.keys(levels)
+  if (!base || chans.length !== Object.keys(base).length || chans.some(ch => !(ch in base))) return null
+  let left = null
+  let right = null
+  for (const ch of chans) {
+    const down = base[ch] - levels[ch]
+    const side = sideOf(ch)
+    if (side === null) {
+      if (down !== 0) return null
+    } else if (side === 'L') {
+      if (left !== null && left !== down) return null
+      left = down
+    } else {
+      if (right !== null && right !== down) return null
+      right = down
+    }
+  }
+  left ??= 0
+  right ??= 0
+  if (left < 0 || right < 0 || (left > 0 && right > 0)) return null
+  return left - right
+}
+
+/** De balans als tekst: "Midden", "Links 1,5 dB zachter", "Rechts 2 dB zachter". */
+export function formatBalance(b) {
+  if (!b) return 'Midden'
+  const n = Math.abs(b)
+  return `${b > 0 ? 'Links' : 'Rechts'} ${n % 1 ? n.toFixed(1).replace('.', ',') : n} dB zachter`
+}

@@ -14,6 +14,7 @@ import {
   commandPath, formatVolume, formatDb, isLanAddress, SOUND_MODES,
   parseNetScreen, screenKey, nowPlaying, streamUrlProblem, playUrlPath, mergeFavorites, moveFavorite,
   wrap, visibleEntries, planMove, NAV,
+  parseLevels, sideOf, levelCommand, balanceLevels, balanceFrom, formatBalance,
 } from '../web/denon.js'
 
 const fixture = name => readFileSync(join(import.meta.dirname, 'fixtures', name), 'utf8')
@@ -265,4 +266,51 @@ test('route naar elke favoriet: de kortste kant, en de lijst is rond', () => {
   assert.deepEqual(planMove(2, 23, 27), Array(6).fill(NAV.up)) //  rond, achteruit
   assert.deepEqual(planMove(17, 18, 27), [NAV.down])
   assert.deepEqual(planMove(5, 5, 27), [])
+})
+
+test('luidsprekerniveaus lezen (onbewerkt van de receiver)', () => {
+  assert.deepEqual(parseLevels(fixture('speaker-levels.html')), { FL: 0, C: 0, FR: 0, SR: 0, SL: 0 })
+  assert.deepEqual(parseLevels("<input id='RangeCVFL' type='range' value='-1.5' min='-12'>"), { FL: -1.5 })
+})
+
+test('kanten en commando', () => {
+  assert.deepEqual(['FL', 'SL', 'SBL', 'FHL', 'FR', 'SR', 'SBR', 'C', 'SW', 'SW2', 'SB'].map(sideOf),
+    ['L', 'L', 'L', 'L', 'R', 'R', 'R', null, null, null, null])
+  assert.equal(levelCommand('FL', -1.5), 'SSLEVFL 485')
+  assert.equal(levelCommand('SR', 0), 'SSLEVSR 50')
+  assert.equal(levelCommand('FL', -12), 'SSLEVFL 38')
+  assert.equal(levelCommand('FL', -20), 'SSLEVFL 38')
+  assert.equal(levelCommand('FR', 12), 'SSLEVFR 62')
+  assert.equal(levelCommand('C', -0.5), 'SSLEVC 495')
+})
+
+test('balans: alleen de andere kant zachter, en terug te lezen', () => {
+  // Een receiver die met Audyssey is ingemeten: niet alles op 0.
+  const base = { FL: -1.5, C: 0, FR: -2, SR: -3, SL: -2.5, SW: 1 }
+  const right = balanceLevels(base, 1.5)
+  assert.deepEqual(right, { FL: -3, C: 0, FR: -2, SR: -3, SL: -4, SW: 1 })
+  assert.equal(balanceFrom(right, base), 1.5)
+  const left = balanceLevels(base, -2)
+  assert.deepEqual(left, { FL: -1.5, C: 0, FR: -4, SR: -5, SL: -2.5, SW: 1 })
+  assert.equal(balanceFrom(left, base), -2)
+  assert.deepEqual(balanceLevels(base, 0), base)
+  assert.equal(balanceFrom(base, base), 0)
+  // Nooit lager dan -12.
+  assert.equal(balanceLevels({ FL: -11, FR: 0 }, 3).FL, -12)
+})
+
+test('balans past niet: dan begint de app opnieuw vanaf wat er staat', () => {
+  const base = { FL: 0, C: 0, FR: 0, SL: 0, SR: 0 }
+  assert.equal(balanceFrom({ FL: -1, C: -1, FR: 0, SL: -1, SR: 0 }, base), null) //  midden ook veranderd
+  assert.equal(balanceFrom({ FL: -1, C: 0, FR: 0, SL: -2, SR: 0 }, base), null) //   links ongelijk
+  assert.equal(balanceFrom({ FL: -1, C: 0, FR: -1, SL: -1, SR: -1 }, base), null) // beide kanten zachter
+  assert.equal(balanceFrom({ FL: 1, C: 0, FR: 0, SL: 1, SR: 0 }, base), null) //     harder dan de basis
+  assert.equal(balanceFrom({ FL: 0, FR: 0 }, base), null) //                         andere luidsprekers
+  assert.equal(balanceFrom({ FL: 0, FR: 0 }, null), null)
+})
+
+test('balans als tekst', () => {
+  assert.equal(formatBalance(0), 'Midden')
+  assert.equal(formatBalance(1.5), 'Links 1,5 dB zachter')
+  assert.equal(formatBalance(-2), 'Rechts 2 dB zachter')
 })

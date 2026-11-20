@@ -615,6 +615,132 @@ svg {
   cursor: default;
 }
 
+/* ─── Balans ──────────────────────────────────────────────────────────────── */
+
+.balance {
+  width: 100%;
+  padding: var(--s4);
+  border: 1px solid var(--line);
+  border-radius: 0.875rem;
+  background: var(--panel);
+}
+
+.balance-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s3);
+}
+
+.balance-title {
+  margin: 0;
+  font: 600 1.0625rem/1.2 var(--font-label);
+}
+
+.balance-value {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 0.9375rem;
+  text-align: right;
+}
+
+.balance-row {
+  display: flex;
+  align-items: center;
+  gap: var(--s3);
+  margin-top: var(--s3);
+}
+
+.round-small {
+  flex: none;
+  width: 3rem;
+  height: 3rem;
+}
+
+.round-small svg {
+  width: 1.375rem;
+  height: 1.375rem;
+}
+
+/* De schuif staat midden op een streepje: daar is de balans in het midden. */
+.balance-track {
+  position: relative;
+  flex: 1;
+  display: grid;
+}
+
+.balance-track::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2px;
+  height: 1.375rem;
+  margin: -0.6875rem 0 0 -1px;
+  border-radius: 1px;
+  background: var(--ink-muted);
+}
+
+.balance-range {
+  position: relative;
+  width: 100%;
+  height: 2.75rem;
+  margin: 0;
+  background: transparent;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.balance-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+}
+
+.balance-range::-webkit-slider-thumb {
+  width: 1.75rem;
+  height: 1.75rem;
+  margin-top: calc(3px - 0.875rem);
+  border: 4px solid var(--accent);
+  border-radius: 50%;
+  background: var(--panel);
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+.balance-range::-moz-range-track {
+  height: 6px;
+  border-radius: 3px;
+  background: var(--line);
+}
+
+.balance-range::-moz-range-thumb {
+  width: 1.25rem;
+  height: 1.25rem;
+  border: 4px solid var(--accent);
+  border-radius: 50%;
+  background: var(--panel);
+}
+
+.balance-range:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+.balance-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 3.75rem;
+  color: var(--ink-muted);
+  font-size: 0.8125rem;
+}
+
+.balance .field-hint {
+  margin-top: var(--s3);
+}
+
 /* ─── Tabbladen onderaan ──────────────────────────────────────────────────── */
 
 .tabbar {

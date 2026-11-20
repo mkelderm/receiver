@@ -12,6 +12,7 @@ import {
   formatVolume, formatDb, isLanAddress, parseNetScreen, screenKey, nowPlaying,
   streamUrlProblem, playUrlPath, mergeFavorites, moveFavorite, newFavoriteId,
   wrap, visibleEntries, planMove,
+  LEVELS_PAGE, BALANCE_MAX, parseLevels, levelCommand, balanceLevels, balanceFrom, formatBalance,
 } from './denon.js'
 
 const $ = id => document.getElementById(id)
@@ -40,6 +41,8 @@ const settings = (() => {
     hidden: Array.isArray(saved.hidden) ? saved.hidden : DEFAULT_HIDDEN,
     // De favorieten zoals je ze in de app hebt ingericht.
     favorites: Array.isArray(saved.favorites) ? saved.favorites : [],
+    // De luidsprekerniveaus bij balans in het midden: { host, levels }.
+    balanceBase: saved.balanceBase && typeof saved.balanceBase === 'object' ? saved.balanceBase : null,
   }
 })()
 
@@ -469,6 +472,7 @@ function render() {
   renderNotice(ok, on)
   renderSources(can)
   renderModes(can, ok)
+  renderBalance()
 }
 
 /**
@@ -1114,6 +1118,151 @@ function chooseMode(mode) {
   send(mode.cmd).then(() => refreshSoon(900))
 }
 
+/* ─── Balans ──────────────────────────────────────────────────────────────── */
+
+// Zie denon.js: balans is de ene kant zachter zetten, via de luidspreker-
+// niveaus van de receiver. De niveaus zonder balans (de basis) bewaart de app,
+// zodat een eerdere inmeting met Audyssey niet verloren gaat.
+
+const bal = {
+  levels: null, // wat de receiver nu heeft, { FL: 0, ... }
+  base: null, //   de niveaus bij balans in het midden
+  value: 0, //     de balans in dB; positief is links zachter
+  expect: null, // na een eigen wijziging: de niveaus die er nu moeten staan
+  failed: false,
+}
+
+const sameLevels = (a, b) =>
+  Object.keys(a).length === Object.keys(b).length && Object.entries(a).every(([ch, db]) => b[ch] === db)
+
+let balanceSliding = false
+let balanceReading = false
+
+async function readBalance() {
+  if (!controllable() || balanceReading) return
+  balanceReading = true
+  try {
+    let base = settings.balanceBase?.host === settings.host ? settings.balanceBase.levels : null
+    let levels = null
+    let value = null
+    // De pagina van de receiver loopt na een wijziging een paar seconden
+    // achter, en laat soms een tussenstand zien (links al aangepast, surround
+    // nog niet). Na een eigen wijziging wacht de app dus tot de pagina toont
+    // wat hij stuurde; anders leest hij een paar keer voordat hij besluit dat
+    // de niveaus echt niet meer bij de basis passen.
+    const expect = bal.expect
+    for (let attempt = 0; attempt < (expect ? 6 : 4); attempt++) {
+      if (attempt) await sleep(1500)
+      levels = parseLevels(await request(LEVELS_PAGE))
+      if (!Object.keys(levels).length) throw new Error('geen niveaus')
+      // Is er intussen weer aan de balans gedraaid, dan is dit al achterhaald.
+      if (balanceBusy || balanceTarget !== null) return
+      value = balanceFrom(levels, base)
+      if (expect ? sameLevels(levels, expect) : value !== null || !base) break
+    }
+    if (expect) {
+      bal.expect = null
+      // Wat de receiver liet liggen, nog een keer sturen. Nooit hier een nieuw
+      // midden nemen: dan zou een half overgekomen wijziging het midden worden.
+      if (!sameLevels(levels, expect)) {
+        bal.levels = levels
+        balanceRepairs++
+        if (balanceRepairs <= 2) {
+          balanceTarget = bal.value
+          pumpBalance()
+        } else {
+          balanceRepairs = 0
+          showToast('De receiver neemt de balans niet goed over. Probeer het nog eens.')
+        }
+        return
+      }
+      balanceRepairs = 0
+    }
+    // Past het niet bij de bewaarde basis (de eerste keer, of iemand heeft op
+    // de receiver zelf iets aangepast), dan geldt wat er nu staat als midden.
+    if (value === null) {
+      base = levels
+      value = 0
+      settings.balanceBase = { host: settings.host, levels }
+      save()
+    }
+    Object.assign(bal, { levels, base, value, failed: false })
+  } catch {
+    bal.failed = true
+  } finally {
+    balanceReading = false
+  }
+  renderBalance()
+}
+
+let balanceTarget = null
+let balanceBusy = false
+let balanceRepairs = 0
+
+function setBalance(value) {
+  if (!controllable() || !bal.base) return
+  balanceRepairs = 0
+  const b = Math.max(-BALANCE_MAX, Math.min(BALANCE_MAX, Math.round(value * 2) / 2))
+  bal.value = b
+  renderBalance()
+  balanceTarget = b
+  pumpBalance()
+}
+
+// Net als bij het volume: alleen de laatste keuze telt, en per luidspreker
+// gaat er alleen een commando uit als het niveau echt verandert.
+async function pumpBalance() {
+  if (balanceBusy) return
+  balanceBusy = true
+  while (balanceTarget !== null) {
+    const want = balanceLevels(bal.base, balanceTarget)
+    balanceTarget = null
+    for (const [ch, db] of Object.entries(want)) {
+      if (balanceTarget !== null) break // een nieuwere keuze: daarmee verder
+      if (bal.levels[ch] === db) continue
+      if (await send(levelCommand(ch, db))) bal.levels[ch] = db
+      // Te snel achter elkaar laat de receiver er soms een liggen.
+      await sleep(STEP_MS)
+    }
+  }
+  balanceBusy = false
+  // Daarna nalezen wat de receiver nu echt heeft.
+  bal.expect = balanceLevels(bal.base, bal.value)
+  setTimeout(() => !balanceBusy && readBalance(), 1500)
+}
+
+function renderBalance() {
+  const can = controllable() && bal.base !== null && !bal.failed
+  const range = $('balance')
+  if (!balanceSliding) range.value = String(bal.value)
+  range.disabled = !can
+  range.setAttribute('aria-valuetext', formatBalance(Number(range.value)))
+  $('balance-value').textContent = !controllable()
+    ? ''
+    : bal.failed
+      ? 'De receiver geeft de niveaus niet'
+      : bal.base === null
+        ? 'Laden…'
+        : formatBalance(balanceSliding ? Number(range.value) : bal.value)
+  $('bal-left').disabled = !can || bal.value <= -BALANCE_MAX
+  $('bal-right').disabled = !can || bal.value >= BALANCE_MAX
+  $('bal-center').disabled = !can || bal.value === 0
+  // Gaat de receiver aan terwijl Geluid openstaat: dan nu de niveaus lezen.
+  if (controllable() && bal.base === null && !bal.failed && !$('tab-sound').hidden) readBalance()
+}
+
+$('balance').addEventListener('input', () => {
+  balanceSliding = true
+  renderBalance()
+})
+$('balance').addEventListener('change', e => {
+  balanceSliding = false
+  setBalance(Number(e.target.value))
+})
+$('bal-left').addEventListener('click', () => setBalance(bal.value - 0.5))
+$('bal-right').addEventListener('click', () => setBalance(bal.value + 0.5))
+$('bal-center').addEventListener('click', () => setBalance(0))
+
 /* ─── Knoppen ─────────────────────────────────────────────────────────────── */
 
 /** Tik is één stap; ingedrukt houden herhaalt. */
@@ -1184,7 +1333,10 @@ function selectTab(index, focus = false) {
     $(panel).hidden = i !== index
   })
   if (focus) $(TABS[index][0]).focus()
-  if (index === 1) refreshSoon(0)
+  if (index === 1) {
+    refreshSoon(0)
+    readBalance()
+  }
 }
 
 TABS.forEach(([btn], i) => {
@@ -1273,6 +1425,8 @@ function useReceiver(host, name) {
     // Ingangen en favorieten horen bij één receiver.
     settings.sources = []
     settings.favorites = []
+    settings.balanceBase = null
+    Object.assign(bal, { levels: null, base: null, value: 0, failed: false })
     Object.assign(state, { reachable: null, power: null, input: null, volume: null, mute: false, soundMode: null })
     failures = 0
   }

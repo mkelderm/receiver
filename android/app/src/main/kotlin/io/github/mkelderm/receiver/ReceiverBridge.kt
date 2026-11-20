@@ -22,6 +22,7 @@ import java.net.URL
  * de pagina alles op haar eigen adres op, en geeft MainActivity het hier door:
  *
  *   /denon/<ip>/goform/<pagina>.xml?<commando>   naar http://<ip>/goform/...
+ *   /denon/<ip>/SETUP/SPEAKERS/LEVELS/...        de luidsprekerniveaus (balans)
  *   /denon/<ip>/dlna/play?url=..&title=..        speelt een stream af
  *   /denon-discover                              zoekt receivers op het netwerk
  *
@@ -32,7 +33,8 @@ import java.net.URL
  */
 object ReceiverBridge {
 
-    private val FORWARD = Regex("""^/denon/([0-9.]+)/(goform/[A-Za-z0-9_]+\.xml)$""")
+    // De goform-pagina's, en de pagina met de luidsprekerniveaus (voor de balans).
+    private val FORWARD = Regex("""^/denon/([0-9.]+)/(goform/[A-Za-z0-9_]+\.xml|SETUP/SPEAKERS/LEVELS/d_speakersetup\.asp)$""")
     private val QUERY = Regex("""^[A-Za-z0-9%/?._-]*$""")
     private val OCTET = Regex("""^(0|[1-9]\d{0,2})$""")
     private val PLAY = Regex("""^/denon/([0-9.]+)/dlna/play$""")
@@ -54,7 +56,8 @@ object ReceiverBridge {
         val target = "http://$host/$page" + if (query.isEmpty()) "" else "?$query"
         return try {
             val (code, body) = get(target, connectMs = 2500, readMs = 4000)
-            WebResourceResponse("text/xml", "utf-8", code, reason(code), NO_STORE, ByteArrayInputStream(body))
+            val type = if (page.endsWith(".asp")) "text/html" else "text/xml"
+            WebResourceResponse(type, "utf-8", code, reason(code), NO_STORE, ByteArrayInputStream(body))
         } catch (_: IOException) {
             text(504, "Receiver niet bereikbaar")
         }
